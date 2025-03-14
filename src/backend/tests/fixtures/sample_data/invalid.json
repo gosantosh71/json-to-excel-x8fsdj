@@ -1,0 +1,13 @@
+{
+    "id": 1,
+    "name": "Test Record"
+    "email": "test@example.com",
+    "active": true,
+    "score": 42,
+    "tags": ["test", "invalid",],
+    "notes": This should be in quotes,
+    "preferences": {
+        "theme": "dark"
+        "notifications": true
+    
+}
