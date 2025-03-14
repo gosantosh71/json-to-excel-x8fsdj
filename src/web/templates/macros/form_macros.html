@@ -1,0 +1,208 @@
+{#
+  form_macros.html - Reusable form macros for the JSON to Excel Conversion Tool web interface.
+  
+  These macros provide standardized, accessible form components for file uploads,
+  input fields, validation messages, and form actions.
+  
+  Dependencies:
+  - Jinja2 3.0.0+: Template engine for rendering HTML with dynamic content
+#}
+
+{% from './status_macros.html' import progress_bar, status_message %}
+
+{% macro input_field(name, label, type='text', value='', required=false, placeholder='', help_text='', error='', classes='', attrs={}) %}
+  <div class="form-group {{ 'has-error' if error else '' }} {{ classes }}">
+    <label for="{{ name }}" class="form-label">
+      {{ label }}
+      {% if required %}
+        <span class="required-indicator" aria-hidden="true">*</span>
+        <span class="visually-hidden">Required</span>
+      {% endif %}
+    </label>
+    
+    <input type="{{ type }}" 
+           id="{{ name }}" 
+           name="{{ name }}" 
+           value="{{ value }}"
+           {% if required %}required aria-required="true"{% endif %}
+           {% if placeholder %}placeholder="{{ placeholder }}"{% endif %}
+           class="form-control {{ 'is-invalid' if error else '' }}"
+           aria-describedby="{{ 'help-' + name if help_text else '' }} {{ 'error-' + name if error else '' }}"
+           {% for attr_name, attr_value in attrs.items() %}
+             {{ attr_name }}="{{ attr_value }}"
+           {% endfor %}>
+    
+    {% if help_text %}
+      <div id="help-{{ name }}" class="form-text help-text">{{ help_text }}</div>
+    {% endif %}
+    
+    {% if error %}
+      <div id="error-{{ name }}" class="invalid-feedback">{{ error }}</div>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro file_upload(name, accept='.json,application/json', required=true, max_size=5242880, classes='') %}
+  <div class="file-upload-container {{ classes }}">
+    <label for="{{ name }}" class="form-label">
+      Upload JSON File
+      {% if required %}
+        <span class="required-indicator" aria-hidden="true">*</span>
+        <span class="visually-hidden">Required</span>
+      {% endif %}
+    </label>
+    
+    <div class="file-upload-area" 
+         role="button" 
+         tabindex="0" 
+         data-max-size="{{ max_size }}"
+         data-max-size-mb="{{ (max_size / 1048576) | round(1) }}"
+         aria-labelledby="file-upload-instructions">
+      
+      <input type="file" 
+             id="{{ name }}" 
+             name="{{ name }}" 
+             accept="{{ accept }}"
+             class="file-input visually-hidden"
+             {% if required %}required aria-required="true"{% endif %}>
+      
+      <div class="upload-icon">
+        <i class="bi bi-cloud-arrow-up-fill" aria-hidden="true"></i>
+      </div>
+      
+      <div id="file-upload-instructions" class="upload-instructions">
+        <p>Drag and drop your file here or <button type="button" class="btn btn-link p-0 browse-button">browse</button></p>
+        <p class="upload-file-types">Accepted file: .json (max {{ (max_size / 1048576) | round(1) }}MB)</p>
+      </div>
+    </div>
+    
+    <div class="file-info d-none">
+      <div class="file-info-content">
+        <i class="bi bi-file-earmark-text file-icon" aria-hidden="true"></i>
+        <span class="file-name">No file selected</span>
+        <span class="file-size"></span>
+      </div>
+      <button type="button" class="btn btn-sm btn-outline-danger remove-file" aria-label="Remove file">
+        <i class="bi bi-x" aria-hidden="true"></i>
+      </button>
+    </div>
+    
+    <div class="invalid-feedback file-feedback"></div>
+    
+    <div class="file-size-warning d-none alert alert-warning mt-2" role="alert">
+      <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+      Large file detected (>1MB). Processing may take longer than usual.
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro sheet_name_field(name='sheet_name', value='Sheet1', required=true, classes='') %}
+  {{ input_field(
+    name=name,
+    label='Sheet Name',
+    type='text',
+    value=value,
+    required=required,
+    placeholder='Enter sheet name',
+    help_text='Name for the Excel worksheet (31 characters max, no special characters)',
+    classes='sheet-name-field ' + classes,
+    attrs={
+      'pattern': '^[^\\/?*[\]]{1,31}$',
+      'data-validation': 'sheet-name',
+      'maxlength': '31'
+    }
+  ) }}
+{% endmacro %}
+
+{% macro array_handling_options(name='array_handling', selected='expand', classes='') %}
+  <div class="array-handling-options {{ classes }}">
+    <fieldset>
+      <legend class="form-label">Array Handling</legend>
+      
+      <div class="form-check">
+        <input type="radio" 
+               id="{{ name }}-expand" 
+               name="{{ name }}" 
+               value="expand" 
+               class="form-check-input"
+               {% if selected == 'expand' %}checked{% endif %}
+               aria-describedby="{{ name }}-expand-description">
+        <label class="form-check-label" for="{{ name }}-expand">
+          Expand arrays into rows
+        </label>
+        <div id="{{ name }}-expand-description" class="form-text help-text">
+          Each array item will become a separate row in the Excel sheet
+        </div>
+      </div>
+      
+      <div class="form-check mt-2">
+        <input type="radio" 
+               id="{{ name }}-join" 
+               name="{{ name }}" 
+               value="join" 
+               class="form-check-input"
+               {% if selected == 'join' %}checked{% endif %}
+               aria-describedby="{{ name }}-join-description">
+        <label class="form-check-label" for="{{ name }}-join">
+          Join arrays as text
+        </label>
+        <div id="{{ name }}-join-description" class="form-text help-text">
+          Array values will be joined with commas in a single cell
+        </div>
+      </div>
+    </fieldset>
+  </div>
+{% endmacro %}
+
+{% macro form_actions(convert_text='Convert to Excel', reset_text='Reset', classes='') %}
+  <div class="form-actions mt-4 {{ classes }}">
+    <button type="submit" class="btn btn-primary conversion-button">
+      <i class="bi bi-file-earmark-excel me-2" aria-hidden="true"></i>
+      {{ convert_text }}
+    </button>
+    
+    <button type="reset" class="btn btn-outline-secondary ms-2 reset-button">
+      <i class="bi bi-arrow-counterclockwise me-2" aria-hidden="true"></i>
+      {{ reset_text }}
+    </button>
+  </div>
+{% endmacro %}
+
+{% macro validation_message(message='', type='error', classes='') %}
+  {% if message %}
+    <div class="validation-message alert alert-{{ 'danger' if type == 'error' else ('warning' if type == 'warning' else 'info') }} {{ classes }}"
+         role="alert">
+      {% if type == 'error' %}
+        <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
+      {% elif type == 'warning' %}
+        <i class="bi bi-exclamation-triangle me-2" aria-hidden="true"></i>
+      {% else %}
+        <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
+      {% endif %}
+      {{ message }}
+    </div>
+  {% endif %}
+{% endmacro %}
+
+{% macro progress_indicator(classes='') %}
+  <div class="progress-container d-none {{ classes }}" aria-live="polite">
+    <div class="progress-section">
+      <div class="progress-heading">
+        <h3 class="h5">Converting File</h3>
+      </div>
+      
+      {{ progress_bar(0) }}
+      
+      <div class="progress-details mt-2">
+        {{ status_message('Initializing...') }}
+      </div>
+      
+      <div class="cancel-section mt-3 text-center">
+        <button type="button" class="btn btn-sm btn-outline-secondary cancel-button">
+          <i class="bi bi-x-circle me-2" aria-hidden="true"></i>
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+{% endmacro %}
