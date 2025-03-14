@@ -1,0 +1,153 @@
+{
+  "commands": {
+    "convert": {
+      "description": "Convert JSON file to Excel format",
+      "required_args": ["input_file", "output_file"],
+      "options": ["sheet_name", "array_handling", "verbose", "chunk_size", "fields"],
+      "examples": [
+        "data.json output.xlsx",
+        "data.json output.xlsx --sheet-name=Data --verbose"
+      ]
+    },
+    "validate": {
+      "description": "Validate JSON file structure and format",
+      "required_args": ["input_file"],
+      "options": ["verbose"],
+      "examples": [
+        "data.json",
+        "data.json --verbose"
+      ]
+    },
+    "info": {
+      "description": "Display information about JSON file",
+      "required_args": ["input_file"],
+      "options": ["verbose", "format"],
+      "examples": [
+        "data.json",
+        "data.json --format=json"
+      ]
+    },
+    "help": {
+      "description": "Display help information",
+      "required_args": [],
+      "options": ["command"],
+      "examples": [
+        "",
+        "convert"
+      ]
+    }
+  },
+  "options": {
+    "sheet_name": {
+      "description": "Name for Excel worksheet",
+      "default": "Sheet1",
+      "type": "string",
+      "help": "Custom name for the Excel worksheet"
+    },
+    "array_handling": {
+      "description": "How to handle arrays in JSON",
+      "default": "expand",
+      "choices": ["expand", "join"],
+      "type": "string",
+      "help": "Expand arrays into multiple rows or join as comma-separated values"
+    },
+    "verbose": {
+      "description": "Enable detailed output",
+      "default": false,
+      "type": "boolean",
+      "help": "Display detailed information during processing"
+    },
+    "chunk_size": {
+      "description": "Number of records to process at once",
+      "default": 1000,
+      "type": "integer",
+      "help": "Process large files in chunks of specified size"
+    },
+    "fields": {
+      "description": "Specific fields to include in output",
+      "default": null,
+      "type": "string",
+      "help": "Comma-separated list of fields to include in the output"
+    },
+    "format": {
+      "description": "Output format for info command",
+      "default": "text",
+      "choices": ["text", "json"],
+      "type": "string",
+      "help": "Format for displaying information (text or JSON)"
+    }
+  },
+  "display": {
+    "colors": {
+      "info": "blue",
+      "success": "green",
+      "warning": "yellow",
+      "error": "red",
+      "processing": "cyan",
+      "header": "magenta",
+      "default": "white"
+    },
+    "symbols": {
+      "info": "[i]",
+      "success": "[*]",
+      "warning": "[!]",
+      "error": "[!]",
+      "processing": "[>]",
+      "bullet": "•",
+      "arrow": "→"
+    },
+    "progress": {
+      "spinner_chars": ["-", "\\", "|", "/"],
+      "bar_format": "[{bar}] {percentage}%",
+      "bar_width": 30,
+      "bar_char": "=",
+      "bar_head": ">",
+      "bar_empty": " "
+    },
+    "formatting": {
+      "indent_size": 2,
+      "max_width": 80,
+      "truncate_length": 50,
+      "file_size_precision": 1
+    }
+  },
+  "performance": {
+    "progress_update_interval": 0.1,
+    "spinner_speed": 0.1,
+    "default_chunk_size": 1000
+  },
+  "examples": {
+    "basic": [
+      {
+        "description": "Convert a JSON file to Excel with default settings",
+        "command": "python json_to_excel.py data.json output.xlsx"
+      },
+      {
+        "description": "Validate a JSON file structure",
+        "command": "python json_to_excel.py validate data.json"
+      },
+      {
+        "description": "Display information about a JSON file",
+        "command": "python json_to_excel.py info data.json"
+      }
+    ],
+    "advanced": [
+      {
+        "description": "Convert with custom sheet name and verbose output",
+        "command": "python json_to_excel.py data.json output.xlsx --sheet-name=CustomerData --verbose"
+      },
+      {
+        "description": "Convert with specific array handling method",
+        "command": "python json_to_excel.py data.json output.xlsx --array-handling=join"
+      },
+      {
+        "description": "Process a large file with chunking",
+        "command": "python json_to_excel.py data.json output.xlsx --chunk-size=500"
+      },
+      {
+        "description": "Extract only specific fields",
+        "command": "python json_to_excel.py data.json output.xlsx --fields=id,name,contact.email"
+      }
+    ]
+  }
+}
