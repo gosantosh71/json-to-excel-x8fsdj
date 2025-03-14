@@ -1,0 +1,42 @@
+<header>
+    <!-- Skip link for accessibility -->
+    <a class="skip-link sr-only sr-only-focusable" href="#main-content" tabindex="0">Skip to main content</a>
+
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-expand-md navbar-light bg-light">
+        <div class="container">
+            <!-- Brand logo and name -->
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('index') }}">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="" width="30" height="30" class="d-inline-block align-top me-2" aria-hidden="true">
+                JSON to Excel
+            </a>
+
+            <!-- Mobile toggle button -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Navigation links -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'index' %}active{% endif %}"
+                           href="{{ url_for('index') }}"
+                           aria-current="{% if active_page == 'index' %}page{% endif %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'help' %}active{% endif %}"
+                           href="{{ url_for('help') }}"
+                           aria-current="{% if active_page == 'help' %}page{% endif %}">Help</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if active_page == 'about' %}active{% endif %}"
+                           href="{{ url_for('about') }}"
+                           aria-current="{% if active_page == 'about' %}page{% endif %}">About</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</header>
