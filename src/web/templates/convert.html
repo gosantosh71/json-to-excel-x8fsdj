@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% from 'macros/form_macros.html' import sheet_name_field, array_handling_options, form_actions, validation_message %}
+{% from 'macros/status_macros.html' import progress_bar, status_message, job_details %}
+
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <header class="text-center mb-4">
+                    <h1>Convert JSON to Excel</h1>
+                    <p class="lead">Configure conversion options and start the process</p>
+                    <div class="file-info alert alert-info">
+                        <i class="bi bi-file-earmark-text me-2"></i>
+                        <strong>File:</strong> {{ file.original_filename }} ({{ file.size_formatted }})
+                    </div>
+                </header>
+
+                <!-- Conversion Form -->
+                <div id="conversion-section" class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Conversion Options</h2>
+                    </div>
+                    <div class="card-body">
+                        <form id="conversion-form" method="POST" action="{{ url_for('conversion.process', file_id=file.id) }}" data-form-type="conversion">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                            <input type="hidden" name="file_id" value="{{ file.id }}">
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{ sheet_name_field(name='sheet_name', value='Sheet1', required=true) }}
+                                </div>
+                                <div class="col-md-6">
+                                    {{ array_handling_options(name='array_handling', selected='expand') }}
+                                </div>
+                            </div>
+
+                            {{ validation_message(message='', type='error', classes='hidden') }}
+
+                            <div class="form-actions mt-4">
+                                {{ form_actions(convert_text='Start Conversion', reset_text='Cancel') }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Processing Section (initially hidden) -->
+                <div id="processing-section" class="card shadow-sm mb-4 hidden">
+                    <div class="card-header">
+                        <h2 class="h5 mb-0">Processing</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="progress-container" data-job-id="">
+                            {{ progress_bar(percentage=0, status='PROCESSING') }}
+                            {{ status_message(message='Preparing to process...', status='PROCESSING') }}
+                        </div>
+
+                        <div class="job-details-container mt-4">
+                            {{ job_details(file) }}
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="button" class="btn btn-outline-secondary cancel-button" data-job-id="">
+                                <i class="bi bi-x-circle me-2"></i>Cancel Conversion
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error Section (initially hidden) -->
+                <div id="error-section" class="card shadow-sm mb-4 hidden">
+                    <div class="card-header bg-danger text-white">
+                        <h2 class="h5 mb-0">Conversion Error</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="error-message alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                            <span class="message-text">An error occurred during conversion.</span>
+                        </div>
+
+                        <div class="error-details mt-3 hidden">
+                            <h3 class="h6">Error Details:</h3>
+                            <pre class="error-details-text bg-light p-3 rounded"></pre>
+                        </div>
+
+                        <div class="error-help mt-3">
+                            <h3 class="h6">Troubleshooting:</h3>
+                            <ul class="error-help-list">
+                                <li>Check that your JSON file has valid syntax</li>
+                                <li>Ensure the file is not too large (maximum 5MB)</li>
+                                <li>Try again or use a different JSON file</li>
+                            </ul>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <button type="button" class="btn btn-primary try-again-button">
+                                <i class="bi bi-arrow-repeat me-2"></i>Try Again
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/conversion.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/progress-tracking.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize conversion functionality
+            initConversion();
+        });
+    </script>
+{% endblock %}
