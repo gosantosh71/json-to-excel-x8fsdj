@@ -1,0 +1,57 @@
+{
+  "id": 1,
+  "name": "John Doe",
+  "contact": {
+    "email": "john.doe@example.com",
+    "phone": "555-1234",
+    "address": {
+      "street": "123 Main St",
+      "city": "Anytown",
+      "state": "CA",
+      "zip": "12345",
+      "coordinates": {
+        "latitude": 37.7749,
+        "longitude": -122.4194
+      }
+    }
+  },
+  "profile": {
+    "age": 30,
+    "active": true,
+    "registration_date": "2023-01-15",
+    "preferences": {
+      "theme": "dark",
+      "notifications": {
+        "email": true,
+        "sms": false,
+        "push": true
+      },
+      "language": "en-US"
+    }
+  },
+  "account": {
+    "type": "premium",
+    "status": "verified",
+    "details": {
+      "credit_limit": 5000,
+      "discount_rate": 0.1,
+      "payment_methods": {
+        "primary": {
+          "type": "credit_card",
+          "last_four": "1234",
+          "expiry": "12/25"
+        },
+        "secondary": {
+          "type": "bank_account",
+          "account_number": "****5678"
+        }
+      }
+    }
+  },
+  "metadata": {
+    "last_login": "2023-06-20T14:30:45Z",
+    "session_count": 42,
+    "notes": "Regular customer with good payment history",
+    "tags": "personal,customer,premium"
+  }
+}
