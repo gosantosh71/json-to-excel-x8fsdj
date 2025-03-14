@@ -1,0 +1,40 @@
+{# 
+  upload_form.html - File upload form component for the JSON to Excel Conversion Tool web interface.
+  
+  This partial template provides a reusable upload form with drag-and-drop functionality,
+  conversion options, and form submission controls.
+  
+  Dependencies:
+  - Jinja2 3.0.0+: Template engine for rendering HTML with dynamic content
+  - form_macros.html: Provides reusable form components
+  - form.css: Form-specific styling for the upload interface
+#}
+
+{% from 'macros/form_macros.html' import file_upload, sheet_name_field, array_handling_options, form_actions, validation_message, progress_indicator %}
+
+<form id="upload-form" class="upload-form" method="POST" action="{{ url_for('conversion.create_job') }}" enctype="multipart/form-data" data-form-type="conversion" aria-labelledby="form-title">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <input type="hidden" name="file_id" id="file-id" value="">
+
+    <div class="form-section">
+        <h3 id="form-title" class="form-section-title">Upload JSON File</h3>
+        {{ file_upload(name='json_file', accept='.json,application/json', required=true, max_size=5242880) }}
+    </div>
+
+    <div id="conversion-options" class="form-section conversion-options disabled">
+        <h3 class="form-section-title">Conversion Options</h3>
+        <div class="row">
+            <div class="col-md-6">
+                {{ sheet_name_field(name='sheet_name', value='Sheet1', required=true) }}
+            </div>
+            <div class="col-md-6">
+                {{ array_handling_options(name='array_handling', selected='expand') }}
+            </div>
+        </div>
+    </div>
+
+    {{ validation_message(message='', type='error', classes='hidden') }}
+    {{ progress_indicator(classes='hidden') }}
+
+    {{ form_actions(convert_text='Convert to Excel', reset_text='Reset') }}
+</form>
