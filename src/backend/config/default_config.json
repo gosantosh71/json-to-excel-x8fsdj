@@ -1,0 +1,28 @@
+{
+  "system": {
+    "max_file_size": 5242880,
+    "max_nesting_level": 10,
+    "temp_directory": "./temp",
+    "log_level": "INFO",
+    "log_file": "json_to_excel.log"
+  },
+  "conversion": {
+    "array_handling": "expand",
+    "default_sheet_name": "Sheet1",
+    "excel_format": "xlsx",
+    "auto_column_width": true,
+    "format_headers": true,
+    "apply_data_formatting": true,
+    "freeze_header_row": true
+  },
+  "web_interface": {
+    "enabled": false,
+    "port": 5000,
+    "host": "127.0.0.1",
+    "upload_folder": "./uploads",
+    "max_upload_size": 5242880,
+    "allowed_extensions": ["json"],
+    "session_timeout": 3600,
+    "file_retention_period": 86400
+  }
+}
