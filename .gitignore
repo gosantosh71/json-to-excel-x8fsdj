@@ -1,0 +1,55 @@
+*.py[cod]
+__pycache__/
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Virtual environment directories and environment files
+venv/
+ENV/
+.env
+.venv
+
+# IDE configuration files and temporary editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Application-specific temporary files, logs, and generated Excel files
+src/web/uploads/
+src/web/temp/
+src/backend/temp/
+*.xlsx
+*.log
+# Exception for test fixtures
+!src/backend/tests/fixtures/expected_output/*.xlsx
+
+# Build artifacts and executables
+*.spec
+# Exception for PyInstaller spec files
+!pyinstaller/*.spec
+*.exe
+*.dmg
+*.pkg
+*.AppImage
