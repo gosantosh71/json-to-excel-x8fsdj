@@ -1,0 +1,61 @@
+name: Backend Tests
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/backend/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'src/backend/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Backend Tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9, 3.10, 3.11]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/backend/requirements.txt
+          pip install pytest-cov
+
+      - name: Lint with flake8
+        run: |
+          flake8 src/backend --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 src/backend --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
+
+      - name: Check formatting with black
+        run: black --check src/backend
+
+      - name: Run unit tests
+        run: pytest src/backend/tests/test_*.py -v
+
+      - name: Run integration tests
+        run: pytest src/backend/tests/integration/ -v
+
+      - name: Run performance tests
+        run: pytest src/backend/tests/performance/ -v
+
+      - name: Generate coverage report
+        run: pytest src/backend/tests/ --cov=src/backend --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          fail_ci_if_error: true
