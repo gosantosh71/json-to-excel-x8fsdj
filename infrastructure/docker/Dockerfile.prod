@@ -1,0 +1,175 @@
+# ====================================================================
+# Production Dockerfile for JSON to Excel Conversion Tool
+# 
+# This Dockerfile creates optimized images for both CLI and web interface
+# deployments using a multi-stage build process.
+#
+# Build the CLI version:
+#   docker build --target final-cli -t json-to-excel:cli -f Dockerfile.prod .
+#
+# Build the web version:
+#   docker build --target final-web -t json-to-excel:web -f Dockerfile.prod .
+#
+# Skip tests during build:
+#   docker build --build-arg SKIP_TESTS=true --target final-cli -t json-to-excel:cli -f Dockerfile.prod .
+# ====================================================================
+
+# Global build arguments
+ARG PYTHON_VERSION=3.11-slim-bullseye
+ARG BUILD_MODE=production
+ARG SKIP_TESTS=false
+
+# ====================================================================
+# Builder base stage - Common setup for all components
+# ====================================================================
+FROM python:${PYTHON_VERSION} AS builder-base
+
+# Set environment variables for Python optimization
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Install system dependencies for building Python packages
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements files first for better layer caching
+COPY src/backend/requirements.txt /app/src/backend/
+COPY src/cli/requirements.txt /app/src/cli/
+COPY src/web/requirements.txt /app/src/web/
+
+# Install common Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r /app/src/backend/requirements.txt
+
+# ====================================================================
+# Builder stage for backend component
+# ====================================================================
+FROM builder-base AS builder-backend
+
+# Copy backend source code
+COPY src/backend /app/src/backend/
+
+# Run backend tests if not skipped
+ARG SKIP_TESTS
+RUN if [ "$SKIP_TESTS" = "false" ]; then \
+    cd /app && python -m pytest src/backend/tests/; \
+    fi
+
+# ====================================================================
+# Builder stage for CLI component
+# ====================================================================
+FROM builder-backend AS builder-cli
+
+# Copy CLI source code
+COPY src/cli /app/src/cli/
+
+# Install CLI-specific dependencies
+RUN pip install --no-cache-dir -r /app/src/cli/requirements.txt
+
+# Run CLI tests if not skipped
+ARG SKIP_TESTS
+RUN if [ "$SKIP_TESTS" = "false" ]; then \
+    cd /app && python -m pytest src/cli/tests/; \
+    fi
+
+# ====================================================================
+# Builder stage for web component
+# ====================================================================
+FROM builder-backend AS builder-web
+
+# Copy web source code
+COPY src/web /app/src/web/
+
+# Install web-specific dependencies
+RUN pip install --no-cache-dir -r /app/src/web/requirements.txt
+
+# Run web tests if not skipped
+ARG SKIP_TESTS
+RUN if [ "$SKIP_TESTS" = "false" ]; then \
+    cd /app && python -m pytest src/web/tests/; \
+    fi
+
+# ====================================================================
+# Final stage for CLI application
+# ====================================================================
+FROM python:${PYTHON_VERSION} AS final-cli
+
+# Set environment variables for Python optimization
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Install minimal runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir --upgrade pip
+
+# Create non-root user for security
+RUN useradd -m appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy built application from builder-cli stage
+COPY --from=builder-cli /app /app
+
+# Set permissions on application files
+RUN chown -R appuser:appuser /app
+
+# Set up data directory for input/output files
+RUN mkdir -p /data && chown -R appuser:appuser /data
+
+# Set volume for data
+VOLUME ["/data"]
+
+# Switch to non-root user
+USER appuser
+
+# Set entrypoint for CLI application
+ENTRYPOINT ["python", "-m", "src.cli.json_to_excel"]
+
+# ====================================================================
+# Final stage for web application
+# ====================================================================
+FROM python:${PYTHON_VERSION} AS final-web
+
+# Set environment variables for Python optimization
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Install minimal runtime dependencies including gunicorn
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir --upgrade pip gunicorn
+
+# Create non-root user for security
+RUN useradd -m appuser
+
+# Set working directory
+WORKDIR /app
+
+# Copy built application from builder-web stage
+COPY --from=builder-web /app /app
+
+# Set permissions on application files
+RUN chown -R appuser:appuser /app
+
+# Set up data directory for input/output files
+RUN mkdir -p /data && chown -R appuser:appuser /data
+
+# Set volume for data
+VOLUME ["/data"]
+
+# Expose port for web access
+EXPOSE 5000
+
+# Switch to non-root user
+USER appuser
+
+# Set entrypoint for web application with gunicorn
+ENTRYPOINT ["gunicorn", "--config", "src/web/gunicorn.conf.py", "src.web.wsgi:application"]
