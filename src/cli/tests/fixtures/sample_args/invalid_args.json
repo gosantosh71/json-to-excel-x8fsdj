@@ -1,0 +1,10 @@
+{
+  "command": "convert",
+  "input_file": "nonexistent.json",
+  "output_file": "/invalid/path/output.xlsx",
+  "sheet_name": "",
+  "array_handling": "invalid_strategy",
+  "verbose": true,
+  "chunk_size": -100,
+  "fields": "*.*.*"
+}
