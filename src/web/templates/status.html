@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% from 'macros/status_macros.html' import status_indicator, progress_bar, status_message, job_details, result_summary, error_details, download_button %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <h1 class="page-title">Conversion Status</h1>
+      <p class="page-description">Track the progress of your JSON to Excel conversion</p>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <div id="status-container" class="card mb-4" data-job-id="{{ job_id }}">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h2 class="h5 mb-0">Status</h2>
+          {{ status_indicator(status) }}
+        </div>
+        <div class="card-body">
+          <div class="status-progress mb-3">
+            {{ progress_bar(job.progress_percentage, status) }}
+          </div>
+          <div class="status-message-container">
+            {{ status_message(job.message, status) }}
+          </div>
+        </div>
+      </div>
+
+      {% if status == 'COMPLETED' %}
+        <div id="result-container" class="card mb-4">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Conversion Results</h2>
+          </div>
+          <div class="card-body">
+            {{ result_summary(job) }}
+            <div class="mt-4 text-center">
+              {{ download_button(download_url, job.output_file_name) }}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if status == 'FAILED' %}
+        <div id="error-container" class="card mb-4">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Conversion Error</h2>
+          </div>
+          <div class="card-body">
+            {{ error_details(error_message, error_details) }}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="col-md-4">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="h5 mb-0">Job Information</h2>
+        </div>
+        <div class="card-body">
+          {{ job_details(job) }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if status in ['COMPLETED', 'FAILED'] %}
+    <div class="row mt-4">
+      <div class="col-12 text-center">
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary me-2">
+          <i class="bi bi-arrow-repeat me-2"></i>Convert Another File
+        </a>
+        {% if status == 'FAILED' %}
+          <a href="{{ url_for('main.retry_job', job_id=job_id) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-clockwise me-2"></i>Try Again
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/status-polling.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/progress-tracking.js') }}"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const jobId = '{{ job_id }}';
+      const currentStatus = '{{ status }}';
+      
+      // Only start polling if job is not in terminal state
+      if (!['COMPLETED', 'FAILED'].includes(currentStatus)) {
+        const statusPoller = initStatusPolling(jobId, {
+          onStatusChange: function(status, progress, message) {
+            console.log(`Status updated: ${status}, ${progress}%, ${message}`);
+            // If status changes to a terminal state, reload the page to show appropriate UI
+            if (['COMPLETED', 'FAILED'].includes(status)) {
+              window.location.reload();
+            }
+          },
+          onComplete: function(result) {
+            console.log('Job completed successfully');
+            window.location.reload();
+          },
+          onError: function(error) {
+            console.error('Job failed:', error);
+            window.location.reload();
+          }
+        });
+        
+        statusPoller.startPolling();
+      }
+      
+      // Update elapsed time for in-progress jobs
+      if (!['COMPLETED', 'FAILED'].includes(currentStatus)) {
+        setInterval(function() {
+          const elapsedTimeElement = document.querySelector('.elapsed-time');
+          if (elapsedTimeElement) {
+            const startTime = new Date(elapsedTimeElement.dataset.startTime);
+            const now = new Date();
+            const elapsedSeconds = Math.floor((now - startTime) / 1000);
+            const minutes = Math.floor(elapsedSeconds / 60);
+            const seconds = elapsedSeconds % 60;
+            elapsedTimeElement.textContent = `${minutes}m ${seconds}s`;
+          }
+        }, 1000);
+      }
+    });
+  </script>
+{% endblock %}
