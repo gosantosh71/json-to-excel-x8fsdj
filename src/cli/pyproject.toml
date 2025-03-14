@@ -1,0 +1,61 @@
+[project]
+name = "json-to-excel-converter-cli"
+version = "1.0.0"
+description = "Command-line interface for converting JSON data files into structured Excel spreadsheets"
+authors = [
+    {name = "Your Organization", email = "contact@example.com"}
+]
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10", 
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Office/Business",
+    "Topic :: Utilities"
+]
+dependencies = [
+    "pandas>=1.5.0",
+    "openpyxl>=3.1.0",
+    "colorama>=0.4.6",
+    "tqdm>=4.65.0",
+    "json-to-excel-converter-backend>=1.0.0"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.3.0",
+    "black>=23.1.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0"
+]
+test = [
+    "pytest>=7.3.0",
+    "pytest-cov>=4.0.0"
+]
+
+[build-system]
+requires = [
+    "setuptools>=67.0.0",
+    "wheel>=0.38.0"
+]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+
+[tool.black]
+line-length = 100
+target-version = ["py39"]
+include = "\.pyi?$"
+
+[tool.flake8]
+max-line-length = 100
+exclude = ".git,__pycache__,build,dist"
+ignore = "E203,W503"
