@@ -1,0 +1,45 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+*.egg
+
+# Virtual environments
+venv/
+env/
+.env/
+.venv/
+
+# Testing and coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# IDE files
+.idea/
+.vscode/
+
+# Editor temporary files
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Temporary directories
+tmp/
+temp/
+
+# Generated output files
+*.xlsx
+
+# Local configuration
+local_config.json
+
+# OS specific files
+.DS_Store
+Thumbs.db
