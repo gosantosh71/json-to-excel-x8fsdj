@@ -1,0 +1,11 @@
+{
+  "command": "convert",
+  "input_file": "large_data.json",
+  "output_file": "detailed_output.xlsx",
+  "sheet_name": "CustomerData",
+  "array_handling": "join",
+  "verbose": true,
+  "chunk_size": 1000,
+  "fields": "id,name,contact.email,address.city,orders.*.product",
+  "format": "detailed"
+}
