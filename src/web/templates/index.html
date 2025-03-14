@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <section class="hero-section text-center py-5">
+        <div class="container">
+            <h1 class="display-4">JSON to Excel Conversion Tool</h1>
+            <p class="lead">Convert your JSON files to Excel spreadsheets with ease</p>
+            <p class="mb-4">A simple tool to transform complex JSON data into structured Excel format</p>
+        </div>
+    </section>
+
+    <section class="upload-section py-4">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm">
+                        <div class="card-body">
+                            {% include 'partials/upload_form.html' %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-section py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-4">Key Features</h2>
+            <div class="row">
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-layers fs-1 mb-3 text-primary"></i>
+                            <h5 class="card-title">Handles Nested JSON</h5>
+                            <p class="card-text">Automatically flattens complex nested structures</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-table fs-1 mb-3 text-primary"></i>
+                            <h5 class="card-title">Array Handling</h5>
+                            <p class="card-text">Converts arrays to multiple rows or columns</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-file-earmark-excel fs-1 mb-3 text-primary"></i>
+                            <h5 class="card-title">Excel Formatting</h5>
+                            <p class="card-text">Preserves data types in Excel output</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <i class="bi bi-lightning fs-1 mb-3 text-primary"></i>
+                            <h5 class="card-title">Fast Processing</h5>
+                            <p class="card-text">Efficiently handles files up to 5MB in size</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='js/file-upload.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/drag-drop.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/conversion.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initFileUpload();
+            initDragDrop();
+            initConversion();
+        });
+    </script>
+{% endblock %}
