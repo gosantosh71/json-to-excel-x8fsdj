@@ -1,0 +1,17 @@
+{
+  "upload_folder": "./uploads",
+  "max_file_size": 5242880,
+  "allowed_extensions": [".json"],
+  "security": {
+    "max_filename_length": 255,
+    "disallow_special_chars": true,
+    "content_validation": {
+      "check_dangerous_patterns": true,
+      "sanitize_formula_triggers": true
+    }
+  },
+  "file_cleanup": {
+    "enabled": true,
+    "max_age_minutes": 60
+  }
+}
