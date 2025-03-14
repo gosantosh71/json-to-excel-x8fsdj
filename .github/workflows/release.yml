@@ -1,0 +1,189 @@
+# Release Workflow
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (must follow semantic versioning)'
+        required: true
+        type: string
+      release_type:
+        description: 'Type of release'
+        required: true
+        type: choice
+        options:
+          - production
+          - beta
+          - alpha
+        default: 'production'
+      publish_to_pypi:
+        description: 'Publish to PyPI'
+        required: false
+        type: boolean
+        default: true
+      publish_to_docker_hub:
+        description: 'Publish to Docker Hub'
+        required: false
+        type: boolean
+        default: true
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  verify_version:
+    name: Verify Version
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout repository using actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3 # actions/checkout v3
+      # Set up Python using actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4 # actions/setup-python v4
+        with:
+          python-version: '3.9'
+      # Verify version format
+      - name: Verify version format
+        run: |
+          echo "${{ github.event.inputs.version }}" | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || (echo "Error: Version must follow semantic versioning (x.y.z)" && exit 1)
+      # Update version in files
+      - name: Update version in files
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          sed -i "s/VERSION = \".*\"/VERSION = \"$VERSION\"/g" src/backend/constants.py
+          sed -i "s/version=\".*\"/version=\"$VERSION\"/g" src/backend/setup.py
+          sed -i "s/version=\".*\"/version=\"$VERSION\"/g" src/cli/setup.py
+          sed -i "s/version=\".*\"/version=\"$VERSION\"/g" src/web/setup.py
+      # Commit version changes
+      - name: Commit version changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add src/backend/constants.py src/backend/setup.py src/cli/setup.py src/web/setup.py
+          git commit -m "Bump version to ${{ github.event.inputs.version }}"
+          git tag -a "v${{ github.event.inputs.version }}" -m "Release v${{ github.event.inputs.version }}"
+          git push origin "v${{ github.event.inputs.version }}"
+
+  build:
+    name: Build Packages and Executables
+    needs: verify_version
+    uses: ./.github/workflows/build.yml
+    with:
+      build_type: all
+      python_version: '3.9'
+
+  update_docs:
+    name: Update Documentation
+    needs: verify_version
+    uses: ./.github/workflows/docs.yml
+
+  create_release:
+    name: Create GitHub Release
+    needs: [build, update_docs]
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout repository using actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3 # actions/checkout v3
+      # Download Python packages using actions/download-artifact@v3
+      - name: Download Python packages
+        uses: actions/download-artifact@v3 # actions/download-artifact v3
+        with:
+          name: python-packages
+          path: dist/packages
+      # Download Windows executables using actions/download-artifact@v3
+      - name: Download Windows executables
+        uses: actions/download-artifact@v3 # actions/download-artifact v3
+        with:
+          name: executables-windows
+          path: dist/executables/windows
+      # Download macOS executables using actions/download-artifact@v3
+      - name: Download macOS executables
+        uses: actions/download-artifact@v3 # actions/download-artifact v3
+        with:
+          name: executables-macos
+          path: dist/executables/macos
+      # Download Linux executables using actions/download-artifact@v3
+      - name: Download Linux executables
+        uses: actions/download-artifact@v3 # actions/download-artifact v3
+        with:
+          name: executables-linux
+          path: dist/executables/linux
+      # Download Docker images using actions/download-artifact@v3
+      - name: Download Docker images
+        uses: actions/download-artifact@v3 # actions/download-artifact v3
+        with:
+          name: docker-images
+          path: dist/docker
+      # Generate release notes
+      - name: Generate release notes
+        run: python scripts/generate_release_notes.py --version "${{ github.event.inputs.version }}" --type "${{ github.event.inputs.release_type }}" > RELEASE_NOTES.md
+      # Create GitHub release using softprops/action-gh-release@v1
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1 # softprops/action-gh-release v1
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          name: Release v${{ github.event.inputs.version }}
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: "${{ github.event.inputs.release_type != 'production' }}"
+          files: |
+            dist/packages/*
+            dist/executables/windows/*
+            dist/executables/macos/*
+            dist/executables/linux/*
+            dist/docker/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish_to_pypi:
+    name: Publish to PyPI
+    needs: create_release
+    if: "${{ github.event.inputs.publish_to_pypi == 'true' }}"
+    runs-on: ubuntu-latest
+    steps:
+      # Download Python packages using actions/download-artifact@v3
+      - name: Download Python packages
+        uses: actions/download-artifact@v3 # actions/download-artifact v3
+        with:
+          name: python-packages
+          path: dist
+      # Publish to PyPI using pypa/gh-action-pypi-publish@release/v1
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1 # pypa/gh-action-pypi-publish release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          packages-dir: dist/
+
+  publish_to_docker_hub:
+    name: Publish to Docker Hub
+    needs: create_release
+    if: "${{ github.event.inputs.publish_to_docker_hub == 'true' }}"
+    runs-on: ubuntu-latest
+    steps:
+      # Download Docker images using actions/download-artifact@v3
+      - name: Download Docker images
+        uses: actions/download-artifact@v3 # actions/download-artifact v3
+        with:
+          name: docker-images
+          path: dist
+      # Load Docker images
+      - name: Load Docker images
+        run: |
+          docker load --input dist/json-to-excel-converter-${{ github.event.inputs.version }}.tar.gz
+          docker load --input dist/json-to-excel-converter-latest.tar.gz
+      # Login to Docker Hub using docker/login-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2 # docker/login-action v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # Tag and push Docker images
+      - name: Tag and push Docker images
+        run: |
+          docker tag json-to-excel-converter:${{ github.event.inputs.version }} ${{ secrets.DOCKERHUB_USERNAME }}/json-to-excel-converter:${{ github.event.inputs.version }}
+          docker tag json-to-excel-converter:latest ${{ secrets.DOCKERHUB_USERNAME }}/json-to-excel-converter:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/json-to-excel-converter:${{ github.event.inputs.version }}
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/json-to-excel-converter:latest
