@@ -1,0 +1,254 @@
+# GitHub Actions workflow configuration file that automates the build process for the JSON to Excel Conversion Tool.
+# This workflow handles building Python packages, creating standalone executables for multiple platforms, and building Docker images for distribution.
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      build_type:
+        description: 'Type of build to perform (packages, executables, docker, all)'
+        required: false
+        type: string
+        default: 'all'
+      python_version:
+        description: 'Python version to use for building'
+        required: false
+        type: string
+        default: '3.9'
+  workflow_dispatch:
+    inputs:
+      build_type:
+        description: 'Type of build to perform'
+        required: true
+        type: choice
+        options:
+          - packages
+          - executables
+          - docker
+          - all
+        default: 'all'
+      python_version:
+        description: 'Python version to use for building'
+        required: false
+        type: string
+        default: '3.9'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'pyinstaller/**'
+      - 'infrastructure/docker/**'
+      - 'setup.py'
+      - 'requirements.txt'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'pyinstaller/**'
+      - 'infrastructure/docker/**'
+      - 'setup.py'
+      - 'requirements.txt'
+
+jobs:
+  build_packages:
+    name: Build Python Packages
+    runs-on: ubuntu-latest
+    if: "inputs.build_type == 'packages' || inputs.build_type == 'all'"
+    steps:
+      # Checkout repository using actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3 # actions/checkout v3
+      # Set up Python using actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4 # actions/setup-python v4
+        with:
+          python-version: '${{ inputs.python_version }}'
+      # Install build dependencies
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build wheel setuptools twine
+      # Build backend package
+      - name: Build backend package
+        run: |
+          cd src/backend
+          python -m build
+          python -m twine check dist/*
+      # Build CLI package
+      - name: Build CLI package
+        run: |
+          cd src/cli
+          python -m build
+          python -m twine check dist/*
+      # Build web package
+      - name: Build web package
+        run: |
+          cd src/web
+          python -m build
+          python -m twine check dist/*
+      # Collect packages
+      - name: Collect packages
+        run: |
+          mkdir -p dist
+          cp src/backend/dist/* dist/
+          cp src/cli/dist/* dist/
+          cp src/web/dist/* dist/
+      # Upload Python packages using actions/upload-artifact@v3
+      - name: Upload Python packages
+        uses: actions/upload-artifact@v3 # actions/upload-artifact v3
+        with:
+          name: python-packages
+          path: dist/*
+
+  build_executables_windows:
+    name: Build Windows Executables
+    runs-on: windows-latest
+    if: "inputs.build_type == 'executables' || inputs.build_type == 'all'"
+    steps:
+      # Checkout repository using actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3 # actions/checkout v3
+      # Set up Python using actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4 # actions/setup-python v4
+        with:
+          python-version: '${{ inputs.python_version }}'
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/backend/requirements.txt
+          pip install -r src/cli/requirements.txt
+          pip install -r src/web/requirements.txt
+          pip install pyinstaller
+      # Build executables
+      - name: Build executables
+        run: infrastructure\scripts\build_executables.bat
+      # Create ZIP archives
+      - name: Create ZIP archives
+        run: |
+          cd dist
+          powershell Compress-Archive -Path json2excel -DestinationPath json2excel-windows.zip
+          powershell Compress-Archive -Path json2excel-web -DestinationPath json2excel-web-windows.zip
+      # Upload Windows executables using actions/upload-artifact@v3
+      - name: Upload Windows executables
+        uses: actions/upload-artifact@v3 # actions/upload-artifact v3
+        with:
+          name: executables-windows
+          path: dist/*.zip
+
+  build_executables_macos:
+    name: Build macOS Executables
+    runs-on: macos-latest
+    if: "inputs.build_type == 'executables' || inputs.build_type == 'all'"
+    steps:
+      # Checkout repository using actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3 # actions/checkout v3
+      # Set up Python using actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4 # actions/setup-python v4
+        with:
+          python-version: '${{ inputs.python_version }}'
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/backend/requirements.txt
+          pip install -r src/cli/requirements.txt
+          pip install -r src/web/requirements.txt
+          pip install pyinstaller
+      # Build executables
+      - name: Build executables
+        run: bash infrastructure/scripts/build_executables.sh
+      # Create ZIP archives
+      - name: Create ZIP archives
+        run: |
+          cd dist
+          zip -r json2excel-macos.zip json2excel
+          zip -r json2excel-web-macos.zip json2excel-web
+      # Upload macOS executables using actions/upload-artifact@v3
+      - name: Upload macOS executables
+        uses: actions/upload-artifact@v3 # actions/upload-artifact v3
+        with:
+          name: executables-macos
+          path: dist/*.zip
+
+  build_executables_linux:
+    name: Build Linux Executables
+    runs-on: ubuntu-latest
+    if: "inputs.build_type == 'executables' || inputs.build_type == 'all'"
+    steps:
+      # Checkout repository using actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3 # actions/checkout v3
+      # Set up Python using actions/setup-python@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4 # actions/setup-python v4
+        with:
+          python-version: '${{ inputs.python_version }}'
+      # Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/backend/requirements.txt
+          pip install -r src/cli/requirements.txt
+          pip install -r src/web/requirements.txt
+          pip install pyinstaller
+      # Build executables
+      - name: Build executables
+        run: bash infrastructure/scripts/build_executables.sh
+      # Create ZIP archives
+      - name: Create ZIP archives
+        run: |
+          cd dist
+          zip -r json2excel-linux.zip json2excel
+          zip -r json2excel-web-linux.zip json2excel-web
+      # Upload Linux executables using actions/upload-artifact@v3
+      - name: Upload Linux executables
+        uses: actions/upload-artifact@v3 # actions/upload-artifact v3
+        with:
+          name: executables-linux
+          path: dist/*.zip
+
+  build_docker:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    if: "inputs.build_type == 'docker' || inputs.build_type == 'all'"
+    steps:
+      # Checkout repository using actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3 # actions/checkout v3
+      # Set up Docker Buildx using docker/setup-buildx-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2 # docker/setup-buildx-action v2
+      # Extract version
+      - name: Extract version
+        id: extract_version
+        run: echo "version=$(grep -m 1 'VERSION = ' src/backend/setup.py | cut -d'"' -f2)" >> $GITHUB_OUTPUT
+      # Build CLI Docker image using docker/build-push-action@v4
+      - name: Build CLI Docker image
+        uses: docker/build-push-action@v4 # docker/build-push-action v4
+        with:
+          context: .
+          file: infrastructure/docker/Dockerfile.prod
+          tags: |
+            json-to-excel-converter:${{ steps.extract_version.outputs.version }}
+            json-to-excel-converter:latest
+          outputs: type=docker,dest=dist/json-to-excel-converter-${{ steps.extract_version.outputs.version }}.tar.gz
+      # Build latest Docker image using docker/build-push-action@v4
+      - name: Build latest Docker image
+        uses: docker/build-push-action@v4 # docker/build-push-action v4
+        with:
+          context: .
+          file: infrastructure/docker/Dockerfile.prod
+          tags: json-to-excel-converter:latest
+          outputs: type=docker,dest=dist/json-to-excel-converter-latest.tar.gz
+      # Upload Docker images using actions/upload-artifact@v3
+      - name: Upload Docker images
+        uses: actions/upload-artifact@v3 # actions/upload-artifact v3
+        with:
+          name: docker-images
+          path: dist/*.tar.gz
