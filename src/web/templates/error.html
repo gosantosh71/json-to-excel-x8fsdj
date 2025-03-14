@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% import 'macros/status_macros.html' as status %}
+
+{% block title %}Error{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="error-header">
+        <div class="error-icon {{ error.category|lower }}">
+            {% if error.category == 'INPUT_ERROR' %}
+                <i class="bi bi-exclamation-triangle"></i>
+            {% elif error.category == 'VALIDATION_ERROR' %}
+                <i class="bi bi-exclamation-circle"></i>
+            {% elif error.category == 'SYSTEM_ERROR' %}
+                <i class="bi bi-x-octagon"></i>
+            {% else %}
+                <i class="bi bi-question-circle"></i>
+            {% endif %}
+        </div>
+        <h1 class="error-title">{{ error.title|default('Conversion Error') }}</h1>
+        {% if error.status_code %}
+            <div class="error-code">Error {{ error.status_code }}</div>
+        {% endif %}
+    </div>
+
+    <div class="error-body">
+        <div class="error-message">
+            {{ error.message }}
+        </div>
+
+        {% if error.details %}
+        <div class="error-details">
+            <button class="error-details-toggle btn btn-sm btn-link" type="button" aria-expanded="false" aria-controls="error-details-content">
+                <i class="bi bi-info-circle"></i> Show technical details
+            </button>
+            <div id="error-details-content" class="error-details-content">
+                <pre>{{ error.details }}</pre>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="troubleshooting">
+        <h2 class="troubleshooting-title">Troubleshooting</h2>
+        <ul class="troubleshooting-steps">
+            {% if 'file not found' in error.message|lower %}
+                <li class="troubleshooting-step">Check that the file exists and is accessible</li>
+                <li class="troubleshooting-step">Try uploading the file again</li>
+            {% elif 'invalid json' in error.message|lower %}
+                <li class="troubleshooting-step">Verify that your JSON file has valid syntax</li>
+                <li class="troubleshooting-step">Use a JSON validator to check your file</li>
+                <li class="troubleshooting-step">Ensure all objects have proper closing braces and quotes</li>
+            {% elif 'size' in error.message|lower %}
+                <li class="troubleshooting-step">Your file may be too large for processing</li>
+                <li class="troubleshooting-step">Try splitting the file into smaller parts</li>
+                <li class="troubleshooting-step">Files should be under 5MB for optimal performance</li>
+            {% elif 'nested' in error.message|lower %}
+                <li class="troubleshooting-step">Your JSON structure may be too deeply nested</li>
+                <li class="troubleshooting-step">Try simplifying the JSON structure</li>
+                <li class="troubleshooting-step">The tool works best with nesting levels under 10</li>
+            {% else %}
+                <li class="troubleshooting-step">Try the conversion again with the same file</li>
+                <li class="troubleshooting-step">Check that your JSON file is properly formatted</li>
+                <li class="troubleshooting-step">If the problem persists, try a different JSON file</li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <div class="error-actions">
+        <a href="{{ url_for('main.index') }}" class="btn btn-primary">
+            <i class="bi bi-arrow-repeat"></i> Try Again
+        </a>
+        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-house"></i> Return to Home
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/error.css') }}">
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const detailsToggle = document.querySelector('.error-details-toggle');
+        if (detailsToggle) {
+            detailsToggle.addEventListener('click', function() {
+                const detailsContent = document.getElementById('error-details-content');
+                const expanded = detailsContent.classList.contains('expanded');
+                
+                if (expanded) {
+                    detailsContent.classList.remove('expanded');
+                    this.innerHTML = '<i class="bi bi-info-circle"></i> Show technical details';
+                    this.setAttribute('aria-expanded', 'false');
+                } else {
+                    detailsContent.classList.add('expanded');
+                    this.innerHTML = '<i class="bi bi-info-circle-fill"></i> Hide technical details';
+                    this.setAttribute('aria-expanded', 'true');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
