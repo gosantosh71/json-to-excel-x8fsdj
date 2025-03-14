@@ -1,0 +1,60 @@
+**/__pycache__/
+**/*.py[cod]
+**/*.so
+**/.pytest_cache/
+
+# Version control
+**/.git/
+**/.github/
+
+# Test and coverage
+**/.coverage
+**/htmlcov/
+
+# Environment and secrets
+**/.env
+**/.venv/
+**/env/
+**/venv/
+
+# System files
+**/.DS_Store
+**/Thumbs.db
+
+# Python packaging
+**/*.egg-info/
+**/dist/
+**/build/
+
+# Documentation
+**/docs/
+
+# Docker files
+**/.dockerignore
+**/docker-compose*.yml
+**/Dockerfile*
+
+# Project files not needed at runtime
+**/README.md
+**/LICENSE
+**/CONTRIBUTING.md
+**/CODE_OF_CONDUCT.md
+
+# Build configurations
+**/pyinstaller/
+**/infrastructure/
+
+# Source exclusions
+**/src/*/tests/
+**/src/*/scripts/
+**/src/*/examples/
+**/src/*/docs/
+
+# Data directory (will be mounted as volume)
+data/
+
+# Exceptions - files we need to include
+!src/backend/requirements.txt
+!src/cli/requirements.txt
+!src/web/requirements.txt
+!src/web/gunicorn.conf.py
