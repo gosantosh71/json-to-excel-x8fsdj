@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  json2excel-cli:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.prod
+      target: final-cli
+      args:
+        BUILD_MODE: production
+        SKIP_TESTS: 'true'
+    volumes:
+      - json2excel-data:/data
+    environment:
+      - LOG_LEVEL=INFO
+    restart: unless-stopped
+    user: appuser:appuser
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-m", "src.cli.json_to_excel", "--version"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
+        reservations:
+          cpus: '0.1'
+          memory: 128M
+    networks:
+      - json2excel-network
+
+  json2excel-web:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.prod
+      target: final-web
+      args:
+        BUILD_MODE: production
+        SKIP_TESTS: 'true'
+    volumes:
+      - json2excel-data:/data
+    environment:
+      - LOG_LEVEL=INFO
+      - FLASK_ENV=production
+      - FLASK_DEBUG=0
+      - GUNICORN_WORKERS=4
+      - GUNICORN_THREADS=2
+      - MAX_UPLOAD_SIZE=5242880
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    user: appuser:appuser
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+    depends_on:
+      json2excel-cli:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.2'
+          memory: 256M
+    networks:
+      - json2excel-network
+
+volumes:
+  json2excel-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /var/data/json2excel
+      o: bind
+
+networks:
+  json2excel-network:
+    driver: bridge
+    internal: true
