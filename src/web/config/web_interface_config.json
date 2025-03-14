@@ -1,0 +1,53 @@
+{
+  "server": {
+    "host": "127.0.0.1",
+    "port": 5000,
+    "debug": false
+  },
+  "security": {
+    "csrf_protection": true,
+    "session_timeout": 30,
+    "content_security_policy": {
+      "enabled": true,
+      "default_src": ["'self'"],
+      "script_src": ["'self'"],
+      "style_src": ["'self'"],
+      "img_src": ["'self'"],
+      "connect_src": ["'self'"]
+    },
+    "rate_limiting": {
+      "enabled": true,
+      "requests_per_minute": 60,
+      "upload_requests_per_minute": 10
+    }
+  },
+  "ui": {
+    "page_title": "JSON to Excel Converter",
+    "theme": "default",
+    "show_help_links": true,
+    "default_options": {
+      "sheet_name": "Sheet1",
+      "array_handling": "expand"
+    }
+  },
+  "job_management": {
+    "limits": {
+      "max_active_jobs": 10,
+      "job_timeout_minutes": 15
+    },
+    "cleanup": {
+      "enabled": true,
+      "interval_minutes": 30,
+      "completed_job_retention_minutes": 60
+    }
+  },
+  "logging": {
+    "level": "INFO",
+    "file": {
+      "enabled": true,
+      "path": "./logs/web_interface.log",
+      "max_size_mb": 10,
+      "backup_count": 3
+    }
+  }
+}
