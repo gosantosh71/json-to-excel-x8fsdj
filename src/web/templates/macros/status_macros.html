@@ -1,0 +1,148 @@
+{#
+  status_macros.html - Reusable macros for displaying job status, progress indicators,
+  and result information for the JSON to Excel Conversion Tool web interface.
+  
+  These components provide standardized, accessible UI elements for showing
+  conversion progress, success results, and error details.
+  
+  Dependencies:
+  - Bootstrap 5.3.0: CSS framework for styling components
+  - Bootstrap Icons 1.10.0: Icon library for status indicators
+#}
+
+{% macro status_indicator(status) %}
+  <div class="status-indicator status-{{ status.lower() }}" role="status" aria-live="polite">
+    {% if status == 'PENDING' %}
+      <i class="bi bi-hourglass status-icon"></i>
+      <span class="status-text">Pending</span>
+    {% elif status == 'VALIDATING' %}
+      <i class="bi bi-check-circle status-icon"></i>
+      <span class="status-text">Validating</span>
+    {% elif status == 'PROCESSING' %}
+      <i class="bi bi-arrow-repeat status-icon spinning"></i>
+      <span class="status-text">Processing</span>
+    {% elif status == 'COMPLETED' %}
+      <i class="bi bi-check-circle-fill status-icon"></i>
+      <span class="status-text">Completed</span>
+    {% elif status == 'FAILED' %}
+      <i class="bi bi-exclamation-triangle-fill status-icon"></i>
+      <span class="status-text">Failed</span>
+    {% else %}
+      <i class="bi bi-question-circle status-icon"></i>
+      <span class="status-text">{{ status }}</span>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro progress_bar(percentage, status='PROCESSING') %}
+  {% set percentage = percentage|int %}
+  {% if percentage < 0 %}{% set percentage = 0 %}{% endif %}
+  {% if percentage > 100 %}{% set percentage = 100 %}{% endif %}
+
+  <div class="progress" role="progressbar" aria-valuenow="{{ percentage }}" aria-valuemin="0" aria-valuemax="100">
+    {% if status == 'COMPLETED' %}
+      <div class="progress-bar bg-success" style="width: {{ percentage }}%">{{ percentage }}%</div>
+    {% elif status == 'FAILED' %}
+      <div class="progress-bar bg-danger" style="width: {{ percentage }}%">{{ percentage }}%</div>
+    {% else %}
+      <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: {{ percentage }}%">{{ percentage }}%</div>
+    {% endif %}
+  </div>
+{% endmacro %}
+
+{% macro status_message(message, status='PROCESSING') %}
+  <div class="status-message" role="status" aria-live="polite">
+    {% if status == 'PROCESSING' %}
+      <i class="bi bi-info-circle text-primary"></i>
+    {% elif status == 'COMPLETED' %}
+      <i class="bi bi-check-circle text-success"></i>
+    {% elif status == 'FAILED' %}
+      <i class="bi bi-exclamation-circle text-danger"></i>
+    {% else %}
+      <i class="bi bi-info-circle"></i>
+    {% endif %}
+    <span class="message-text">{{ message }}</span>
+  </div>
+{% endmacro %}
+
+{% macro job_details(job) %}
+  <div class="job-details">
+    <h3 class="details-title h5">Job Details</h3>
+    <div class="details-section">
+      <h4 class="section-title h6">Input File</h4>
+      <ul class="details-list">
+        <li><strong>Filename:</strong> {{ job.input_file.original_filename }}</li>
+        <li><strong>Size:</strong> {{ format_file_size(job.input_file.file_size) }}</li>
+      </ul>
+    </div>
+    <div class="details-section">
+      <h4 class="section-title h6">Conversion Options</h4>
+      <ul class="details-list">
+        <li><strong>Sheet Name:</strong> {{ job.options.sheet_name }}</li>
+        <li><strong>Array Handling:</strong> {{ job.options.array_handling|capitalize }}</li>
+      </ul>
+    </div>
+    <div class="details-section">
+      <h4 class="section-title h6">Timing</h4>
+      <ul class="details-list">
+        <li><strong>Started:</strong> {{ job.created_at|format_datetime }}</li>
+        <li><strong>Elapsed:</strong> <span class="elapsed-time" data-start-time="{{ job.created_at.isoformat() }}">{{ calculate_elapsed_time(job.created_at) }}</span></li>
+      </ul>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro result_summary(job) %}
+  <div class="result-summary">
+    <h3 class="summary-title h5">Conversion Results</h3>
+    <div class="summary-section">
+      <ul class="summary-list">
+        <li><strong>Input File:</strong> {{ job.input_file.original_filename }} ({{ format_file_size(job.input_file.file_size) }})</li>
+        <li><strong>Output File:</strong> {{ job.output_file_name }} ({{ format_file_size(job.conversion_summary.output_size) }})</li>
+        <li><strong>Rows:</strong> {{ job.conversion_summary.row_count }}</li>
+        <li><strong>Columns:</strong> {{ job.conversion_summary.column_count }}</li>
+        <li><strong>Processing Time:</strong> {{ format_duration(job.get_duration()) }}</li>
+      </ul>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro error_details(message, details) %}
+  <div class="error-details">
+    <h3 class="error-title h5">Error Details</h3>
+    <div class="error-message alert alert-danger">
+      {{ message }}
+    </div>
+    {% if details %}
+      <div class="error-details-section">
+        <h4 class="section-title h6">Technical Details</h4>
+        <pre class="error-technical-details">{{ details }}</pre>
+      </div>
+    {% endif %}
+    <div class="error-help-section">
+      <h4 class="section-title h6">Troubleshooting</h4>
+      <ul class="help-list">
+        {% if 'file not found' in message|lower %}
+          <li>Check that the file exists and is accessible</li>
+          <li>Try uploading the file again</li>
+        {% elif 'invalid json' in message|lower %}
+          <li>Verify that your JSON file has valid syntax</li>
+          <li>Use a JSON validator to check your file</li>
+        {% elif 'size' in message|lower %}
+          <li>Your file may be too large for processing</li>
+          <li>Try splitting the file into smaller parts</li>
+        {% else %}
+          <li>Try the conversion again with the same file</li>
+          <li>Check that your JSON file is properly formatted</li>
+          <li>If the problem persists, try a different JSON file</li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+{% endmacro %}
+
+{% macro download_button(download_url, filename) %}
+  <a href="{{ download_url }}" download="{{ filename }}" class="btn btn-success download-button">
+    <i class="bi bi-download me-2"></i>Download Excel File
+  </a>
+{% endmacro %}
