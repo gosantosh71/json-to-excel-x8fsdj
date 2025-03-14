@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # Development service for the command-line interface component of the JSON to Excel Conversion Tool
+  json2excel-cli:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: cli
+      args:
+        BUILD_MODE: development
+        SKIP_TESTS: 'false'
+    volumes:
+      - ./data:/data  # Mount point for input/output files
+      - ./src:/app/src  # Mount source code for live development
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - LOG_LEVEL=DEBUG
+    command: python -m src.cli.json_to_excel
+    tty: true
+    stdin_open: true
+
+  # Development service for the web interface component of the JSON to Excel Conversion Tool
+  json2excel-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: web
+      args:
+        BUILD_MODE: development
+        SKIP_TESTS: 'false'
+    volumes:
+      - ./data:/data  # Mount point for input/output files
+      - ./src:/app/src  # Mount source code for live development
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - FLASK_APP=src.web.app
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - LOG_LEVEL=DEBUG
+    ports:
+      - "5000:5000"  # Web interface port
+    command: python -m src.web.run
+    depends_on:
+      - json2excel-cli
+    tty: true
+    stdin_open: true
+
+volumes:
+  data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data
+      o: bind
+
+networks:
+  json2excel-network:
+    driver: bridge
