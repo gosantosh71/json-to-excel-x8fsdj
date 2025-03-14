@@ -1,0 +1,17 @@
+{
+  "id": 12345,
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "age": 32,
+  "active": true,
+  "registration_date": "2023-01-15T10:30:45Z",
+  "score": 85.5,
+  "tags": "customer,premium,verified",
+  "notes": "Frequent buyer with excellent payment history",
+  "last_login": "2023-06-20T14:22:10Z",
+  "preferences": "dark_mode,email_notifications",
+  "credit_limit": 5000,
+  "discount_rate": 0.15,
+  "verification_status": "completed",
+  "account_type": "premium"
+}
