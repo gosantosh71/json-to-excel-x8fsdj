@@ -1,0 +1,156 @@
+/* Error Page Styling */
+@import url('../app.css');
+
+.error-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.error-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.error-icon.input_error {
+  color: var(--warning-color);
+}
+
+.error-icon.validation_error {
+  color: var(--error-color);
+}
+
+.error-icon.system_error {
+  color: var(--error-color);
+}
+
+.error-icon.not_found {
+  color: var(--info-color);
+}
+
+.error-title {
+  font-size: 2rem;
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 0.5rem;
+  color: var(--text-color);
+}
+
+.error-code {
+  font-family: monospace;
+  color: var(--light-text-color);
+  margin-bottom: 1rem;
+}
+
+.error-body {
+  background-color: var(--background-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: 2rem;
+}
+
+.error-message {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.error-details {
+  margin-top: 1rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 1rem;
+}
+
+.error-details-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.error-details-content {
+  display: none;
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: var(--light-background-color);
+  border-radius: var(--border-radius);
+  font-family: monospace;
+  font-size: 0.9rem;
+  overflow-x: auto;
+}
+
+.error-details-content.expanded {
+  display: block;
+}
+
+.error-details-content pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.troubleshooting {
+  background-color: var(--light-background-color);
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.troubleshooting-title {
+  font-weight: var(--font-weight-bold);
+  margin-bottom: 1rem;
+  color: var(--text-color);
+}
+
+.troubleshooting-steps {
+  padding-left: 1.5rem;
+  margin-bottom: 0;
+}
+
+.troubleshooting-step {
+  margin-bottom: 0.75rem;
+  line-height: 1.5;
+}
+
+.troubleshooting-step:last-child {
+  margin-bottom: 0;
+}
+
+.error-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.error-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 576px) {
+  .error-container {
+    padding: 1.5rem 1rem;
+  }
+  
+  .error-title {
+    font-size: 1.5rem;
+  }
+  
+  .error-icon {
+    font-size: 2.5rem;
+  }
+  
+  .error-actions {
+    flex-direction: column;
+  }
+  
+  .error-actions .btn {
+    width: 100%;
+  }
+}
