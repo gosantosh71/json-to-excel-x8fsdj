@@ -1,0 +1,8 @@
+{
+  "command": "convert",
+  "input_file": "data.json",
+  "output_file": "output.xlsx",
+  "sheet_name": "Sheet1",
+  "array_handling": "expand",
+  "verbose": false
+}
