@@ -1,0 +1,74 @@
+{
+  "id": 1,
+  "name": "Array Test Data",
+  "description": "Sample JSON with different array types for testing",
+  "tags": ["test", "array", "json", "conversion"],
+  "items": [
+    {
+      "id": 101,
+      "name": "Item 1",
+      "price": 19.99,
+      "in_stock": true
+    },
+    {
+      "id": 102,
+      "name": "Item 2",
+      "price": 29.99,
+      "in_stock": false
+    },
+    {
+      "id": 103,
+      "name": "Item 3",
+      "price": 39.99,
+      "in_stock": true
+    }
+  ],
+  "simple_array": [1, 2, 3, 4, 5],
+  "string_array": ["red", "green", "blue"],
+  "mixed_array": [42, "text", true, null],
+  "nested_objects_with_arrays": {
+    "category": "Products",
+    "subcategories": [
+      {
+        "name": "Electronics",
+        "products": [
+          {
+            "id": 201,
+            "name": "Laptop",
+            "features": ["16GB RAM", "1TB SSD", "15-inch"]
+          },
+          {
+            "id": 202,
+            "name": "Smartphone",
+            "features": ["6GB RAM", "128GB Storage", "5G"]
+          }
+        ]
+      },
+      {
+        "name": "Books",
+        "products": [
+          {
+            "id": 301,
+            "name": "Programming Guide",
+            "authors": ["John Doe", "Jane Smith"]
+          }
+        ]
+      }
+    ]
+  },
+  "empty_array": [],
+  "array_with_empty_objects": [{}, {}, {}],
+  "metadata": {
+    "created_at": "2023-07-15T10:30:00Z",
+    "test_cases": [
+      {
+        "name": "Expand arrays",
+        "description": "Test expanding arrays into multiple rows"
+      },
+      {
+        "name": "Join arrays",
+        "description": "Test joining array values with comma separator"
+      }
+    ]
+  }
+}
