@@ -1,0 +1,216 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="mb-3">Help & Documentation</h1>
+            <p class="lead">Learn how to use the JSON to Excel Conversion Tool effectively.</p>
+        </div>
+    </div>
+
+    <!-- Getting Started Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title h4 mb-3"><i class="bi bi-play-circle"></i> Getting Started</h2>
+                    <p>Converting a JSON file to Excel format is simple with our tool. Follow these steps:</p>
+                    <ol class="step-list">
+                        <li><strong>Upload your JSON file</strong> - Drag and drop your JSON file onto the upload area or click to browse and select a file.</li>
+                        <li><strong>Configure conversion options</strong> - Once your file is uploaded, you can customize the conversion settings such as sheet name and array handling.</li>
+                        <li><strong>Convert to Excel</strong> - Click the "Convert to Excel" button to start the conversion process.</li>
+                        <li><strong>Download the result</strong> - Once processing is complete, you'll be provided with a download link for your Excel file.</li>
+                    </ol>
+                    <div class="text-center my-4">
+                        <img src="{{ url_for('static', filename='img/json-icon.png') }}" alt="JSON File" width="64" height="64" class="mx-3">
+                        <i class="bi bi-arrow-right fs-2 mx-3" aria-hidden="true"></i>
+                        <img src="{{ url_for('static', filename='img/excel-icon.png') }}" alt="Excel File" width="64" height="64" class="mx-3">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JSON Requirements Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title h4 mb-3"><i class="bi bi-file-earmark-code"></i> JSON File Requirements</h2>
+                    <p>The tool supports various JSON structures and formats:</p>
+                    <ul class="requirements-list">
+                        <li><strong>File Size:</strong> JSON files up to 5MB are supported.</li>
+                        <li><strong>File Format:</strong> Files must be valid JSON format with .json extension.</li>
+                        <li><strong>Structure Types:</strong> Both flat and nested JSON structures are supported.</li>
+                        <li><strong>Arrays:</strong> JSON arrays can be handled in different ways (see Conversion Options).</li>
+                        <li><strong>Encoding:</strong> UTF-8 encoded JSON files are recommended.</li>
+                    </ul>
+                    <h3 class="h5 mt-4 mb-3">Example JSON Structures</h3>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <h4 class="h6">Flat JSON</h4>
+                            <pre class="code-example">{
+  "id": 1,
+  "name": "John Doe",
+  "email": "john.doe@example.com",
+  "age": 30,
+  "active": true
+}</pre>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <h4 class="h6">Nested JSON</h4>
+                            <pre class="code-example">{
+  "id": 1,
+  "name": "John Doe",
+  "contact": {
+    "email": "john.doe@example.com",
+    "phone": "555-1234"
+  }
+}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversion Options Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title h4 mb-3"><i class="bi bi-gear"></i> Conversion Options</h2>
+                    <p>The tool provides several options to customize how your JSON data is converted to Excel:</p>
+                    <h3 class="h5 mt-4 mb-2">Sheet Name</h3>
+                    <p>You can specify a custom name for the Excel worksheet. By default, the sheet is named "Sheet1".</p>
+                    <h3 class="h5 mt-4 mb-2">Array Handling</h3>
+                    <p>JSON arrays can be handled in two different ways:</p>
+                    <ul>
+                        <li><strong>Expand arrays into rows:</strong> Each array item becomes a separate row in the Excel file. This is useful for arrays of objects that represent data records.</li>
+                        <li><strong>Join arrays as text:</strong> Array items are combined into a single cell with comma separation. This is useful for simple arrays of primitive values.</li>
+                    </ul>
+                    <div class="alert alert-info mt-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        The best option depends on your data structure and how you plan to use the Excel file. For data analysis, expanding arrays into rows is usually more useful.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Troubleshooting Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title h4 mb-3"><i class="bi bi-wrench"></i> Troubleshooting</h2>
+                    <p>If you encounter issues while using the tool, here are some common problems and solutions:</p>
+                    <div class="accordion mt-3" id="troubleshootingAccordion">
+                        <div class="accordion-item">
+                            <h3 class="accordion-header" id="headingOne">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                                    "Invalid JSON format" error
+                                </button>
+                            </h3>
+                            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#troubleshootingAccordion">
+                                <div class="accordion-body">
+                                    <p>This error occurs when the uploaded file contains syntax errors or is not valid JSON. To fix this:</p>
+                                    <ul>
+                                        <li>Verify that your JSON file has the correct syntax (balanced braces, quotes, commas, etc.)</li>
+                                        <li>Use an online JSON validator to check and fix your JSON</li>
+                                        <li>Ensure the file is properly encoded (UTF-8 recommended)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header" id="headingTwo">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                    "File too large" error
+                                </button>
+                            </h3>
+                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#troubleshootingAccordion">
+                                <div class="accordion-body">
+                                    <p>The tool has a 5MB file size limit for performance reasons. If your file exceeds this limit:</p>
+                                    <ul>
+                                        <li>Split your JSON file into smaller files</li>
+                                        <li>Remove unnecessary data or whitespace to reduce file size</li>
+                                        <li>For very large datasets, consider using the command-line version of the tool</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header" id="headingThree">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                    Conversion takes too long
+                                </button>
+                            </h3>
+                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#troubleshootingAccordion">
+                                <div class="accordion-body">
+                                    <p>Conversion time depends on file size and complexity. If it's taking too long:</p>
+                                    <ul>
+                                        <li>Check your internet connection stability</li>
+                                        <li>Try a smaller file or simplify the JSON structure</li>
+                                        <li>If the process fails repeatedly, try again later or use the command-line version</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    Excel output is not as expected
+                                </button>
+                            </h3>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#troubleshootingAccordion">
+                                <div class="accordion-body">
+                                    <p>If the Excel output doesn't match your expectations:</p>
+                                    <ul>
+                                        <li>Try different array handling options (expand vs. join)</li>
+                                        <li>Check if your JSON structure is very deeply nested (flattening may create many columns)</li>
+                                        <li>For complex JSON structures, consider restructuring your data for better conversion results</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title h4 mb-3"><i class="bi bi-question-circle"></i> Frequently Asked Questions</h2>
+                    <div class="faq-list">
+                        <div class="faq-item mb-4">
+                            <h3 class="h5 mb-2">Is my data secure when using this tool?</h3>
+                            <p>Yes. Your files are processed locally on the server and are automatically deleted after processing. We do not store or access the content of your files beyond what's needed for the conversion process.</p>
+                        </div>
+                        <div class="faq-item mb-4">
+                            <h3 class="h5 mb-2">What happens to nested JSON structures?</h3>
+                            <p>Nested JSON objects are flattened using dot notation for the column names. For example, a nested structure like {"user": {"name": "John"}} will become a column named "user.name" with the value "John".</p>
+                        </div>
+                        <div class="faq-item mb-4">
+                            <h3 class="h5 mb-2">Can I convert Excel back to JSON?</h3>
+                            <p>Currently, the tool only supports one-way conversion from JSON to Excel. Bidirectional conversion may be added in future updates.</p>
+                        </div>
+                        <div class="faq-item mb-4">
+                            <h3 class="h5 mb-2">Is there a limit to how many files I can convert?</h3>
+                            <p>There is no limit to the number of files you can convert. However, each file must be processed individually and must be under the 5MB size limit.</p>
+                        </div>
+                        <div class="faq-item">
+                            <h3 class="h5 mb-2">Is there a command-line version of this tool?</h3>
+                            <p>Yes, there is a command-line version available for advanced users and for processing larger files or batch conversions. You can find more information about it in the project documentation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
