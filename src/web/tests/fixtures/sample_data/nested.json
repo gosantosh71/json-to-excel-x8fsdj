@@ -1,0 +1,26 @@
+{
+  "id": 1,
+  "name": "John Doe",
+  "contact": {
+    "email": "john.doe@example.com",
+    "phone": "555-1234"
+  },
+  "address": {
+    "street": "123 Main St",
+    "city": "Anytown",
+    "state": "CA",
+    "zip": "12345"
+  },
+  "orders": [
+    {"id": 101, "product": "Laptop", "price": 999.99},
+    {"id": 102, "product": "Mouse", "price": 24.99}
+  ],
+  "preferences": {
+    "theme": "dark",
+    "notifications": {
+      "email": true,
+      "sms": false
+    }
+  },
+  "tags": ["customer", "premium", "tech"]
+}
