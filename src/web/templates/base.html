@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" class="h-100">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="JSON to Excel Conversion Tool - Convert JSON files to Excel format">
+    <meta name="author" content="JSON to Excel Conversion Tool">
+    <title>{{ title }} | JSON to Excel Conversion Tool</title>
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/responsive.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/form.css') }}" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+</head>
+<body class="d-flex flex-column h-100" data-page="{{ active_page }}">
+    {% include 'partials/header.html' %}
+
+    <main class="flex-shrink-0" id="main-content">
+        <div class="container my-4">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <div class="notification-container" aria-live="polite">
+        <!-- Notifications will be dynamically inserted here -->
+    </div>
+
+    {% include 'partials/footer.html' %}
+
+    <script src="{{ url_for('static', filename='js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+        });
+    </script>
+</body>
+</html>
